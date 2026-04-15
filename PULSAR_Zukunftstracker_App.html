@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PULSAR Zukunfts-Tracker · CMKB</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal-dark:  #1a5c5c;
+  --teal-mid:   #5da7b2;
+  --teal-light: #c8e6ea;
+  --gold:       #c9a84c;
+  --gold-light: #f0e6d6;
+  --flora:      #f5f2eb;
+  --greige-d:   #8e897a;
+  --greige-l:   #dbd8ca;
+  --sand:       #f5f0e8;
+  --white:      #ffffff;
+  --text:       #1a2020;
+  --green:      #3d9970;
+  --green-light:#d4ede3;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--flora);color:var(--text);min-height:100vh}
+
+/* ── HEADER ── */
+.app-header{
+  background:var(--teal-dark);
+  padding:18px 20px 14px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 20px rgba(26,92,92,.35);
+}
+.header-left h1{
+  font-family:'DM Serif Display',serif;
+  font-size:17px;color:var(--white);letter-spacing:.01em;
+}
+.header-left .sub{font-size:10px;color:var(--teal-light);margin-top:2px;font-weight:300}
+.progress-ring{width:46px;height:46px;position:relative;cursor:pointer}
+.progress-ring svg{transform:rotate(-90deg)}
+.progress-ring circle{fill:none;stroke-width:3.5;stroke-linecap:round}
+.progress-ring .bg{stroke:rgba(255,255,255,.15)}
+.progress-ring .fg{stroke:var(--gold);transition:stroke-dashoffset .5s}
+.ring-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:9px;color:var(--white);font-weight:600;text-align:center;line-height:1.1;
+  font-family:'DM Mono',monospace;
+}
+
+/* ── TABS ── */
+.tabs{
+  background:var(--teal-dark);
+  display:flex;border-top:1px solid rgba(255,255,255,.1);
+  overflow-x:auto;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:1;min-width:62px;padding:9px 6px;
+  text-align:center;font-size:9.5px;font-weight:500;
+  color:rgba(255,255,255,.45);cursor:pointer;transition:all .2s;
+  border-bottom:2.5px solid transparent;
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+}
+.tab:hover{color:rgba(255,255,255,.75)}
+.tab.active{color:var(--white);border-bottom-color:var(--gold)}
+
+/* ── CONTENT ── */
+.content{padding:18px 14px 100px;max-width:680px;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
+
+/* ── CARDS ── */
+.card{
+  background:var(--white);border-radius:14px;
+  margin-bottom:14px;overflow:hidden;
+  box-shadow:0 2px 16px rgba(26,92,92,.07);
+}
+.card-header{
+  padding:13px 16px;display:flex;align-items:center;gap:10px;
+}
+.card-header.teal{background:var(--teal-dark)}
+.card-header.gold{background:var(--gold)}
+.card-header.mid{background:var(--teal-mid)}
+.card-header .icon{font-size:15px}
+.card-header .title{
+  font-size:12px;font-weight:600;color:var(--white);
+  text-transform:uppercase;letter-spacing:.05em;
+}
+.card-header .hint{font-size:10px;color:rgba(255,255,255,.65);margin-top:1px}
+.card-body{padding:16px}
+
+/* ── HINT ROW ── */
+.hint-row{
+  background:var(--sand);padding:8px 12px;
+  font-size:10px;color:var(--greige-d);font-style:italic;
+  border-bottom:1px solid var(--greige-l);
+}
+.hint-row::before{content:"→  "}
+
+/* ── FORMS ── */
+.field-group{margin-bottom:14px}
+.field-label{font-size:10px;font-weight:600;color:var(--greige-d);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.field-input{
+  width:100%;border:1.5px solid var(--greige-l);border-radius:8px;
+  padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;
+  background:var(--flora);color:var(--text);outline:none;
+  transition:border-color .2s;
+}
+.field-input:focus{border-color:var(--teal-mid)}
+textarea.field-input{resize:vertical;min-height:72px;line-height:1.6}
+
+/* ── ACTIVITY TOGGLE ── */
+.activity-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--greige-l);
+}
+.activity-item:last-child{border-bottom:none}
+.act-check{
+  width:36px;height:36px;border-radius:10px;
+  border:2px solid var(--greige-l);background:var(--flora);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:18px;transition:all .2s;flex-shrink:0;
+}
+.act-check.done{background:var(--green);border-color:var(--green);color:var(--white)}
+.act-name{flex:1}
+.act-name .name{font-size:14px;font-weight:500;color:var(--text)}
+.act-name .sub{font-size:11px;color:var(--greige-d)}
+.act-badge{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--greige-d);min-width:24px;text-align:center;
+}
+.act-check.done ~ .act-badge{color:var(--green);font-weight:600}
+
+/* ── FEELING SLIDER ── */
+.feeling-row{margin-bottom:18px}
+.feeling-row:last-child{margin-bottom:0}
+.feeling-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.feeling-name{font-size:13px;font-weight:500;color:var(--text)}
+.feeling-val{
+  font-family:'DM Mono',monospace;font-size:16px;font-weight:600;
+  color:var(--teal-dark);min-width:28px;text-align:right;
+}
+input[type=range]{
+  width:100%;height:6px;-webkit-appearance:none;
+  border-radius:3px;outline:none;cursor:pointer;
+  background:linear-gradient(to right,var(--teal-mid) 0%,var(--teal-mid) 50%,var(--greige-l) 50%,var(--greige-l) 100%);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:var(--teal-dark);border:2.5px solid var(--white);
+  box-shadow:0 2px 8px rgba(26,92,92,.3);cursor:pointer;
+}
+
+/* ── DATE BAR ── */
+.date-bar{
+  background:var(--white);border-radius:12px;padding:13px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;box-shadow:0 2px 12px rgba(26,92,92,.06);
+}
+.date-text{font-family:'DM Serif Display',serif;font-size:17px;color:var(--teal-dark)}
+.week-badge{
+  background:var(--gold-light);color:var(--gold);
+  font-size:10px;font-weight:600;padding:4px 10px;
+  border-radius:20px;text-transform:uppercase;letter-spacing:.06em;
+  font-family:'DM Mono',monospace;
+}
+
+/* ── NOTE ── */
+.note-wrap{margin-top:12px;padding-top:12px;border-top:1px solid var(--greige-l)}
+
+/* ── SAVE BTN ── */
+.btn-save{
+  width:100%;background:var(--teal-dark);color:var(--white);border:none;
+  padding:15px;border-radius:12px;font-size:14px;font-weight:600;
+  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;
+  letter-spacing:.02em;margin-top:4px;
+}
+.btn-save:hover{background:var(--teal-mid)}
+.btn-save.saved{background:var(--green)}
+.btn-secondary{
+  background:transparent;color:var(--teal-dark);border:1.5px solid var(--teal-mid);
+  padding:10px 16px;border-radius:10px;font-size:13px;font-weight:500;
+  font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;
+}
+.btn-secondary:hover{background:var(--teal-light)}
+
+/* ── TRACKER GRID ── */
+.week-block{margin-bottom:18px}
+.week-title{
+  font-size:10px;font-weight:700;color:var(--teal-dark);
+  text-transform:uppercase;letter-spacing:.08em;
+  padding:8px 0 6px;display:flex;align-items:center;gap:8px;
+}
+.week-title::after{content:'';flex:1;height:1px;background:var(--greige-l)}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.day-cell{
+  background:var(--white);border-radius:8px;
+  padding:6px 4px;text-align:center;cursor:pointer;
+  transition:all .2s;box-shadow:0 1px 4px rgba(26,92,92,.05);
+  min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.day-cell:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(26,92,92,.12)}
+.day-cell.today{ring:2px solid var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.day-cell.has-entry.full{background:var(--green-light)}
+.day-cell.has-entry.partial{background:#fef9ec}
+.day-cell .d-name{font-size:8px;font-weight:600;color:var(--greige-d);text-transform:uppercase;letter-spacing:.05em}
+.day-cell .d-num{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--text)}
+.day-cell.today .d-num{color:var(--teal-dark)}
+.day-cell .d-acts{display:flex;gap:2px;margin-top:2px}
+.d-dot{width:6px;height:6px;border-radius:50%;background:var(--greige-l)}
+.d-dot.on{background:var(--green)}
+.day-cell .d-feel{font-size:9px;color:var(--greige-d);font-family:'DM Mono',monospace;margin-top:1px}
+
+/* ── WEEK PULSE ── */
+.pulse-row{
+  background:var(--gold-light);border-radius:10px;
+  padding:10px 14px;margin-top:6px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.pulse-label{font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.pulse-acts{font-family:'DM Mono',monospace;font-size:12px;color:var(--teal-dark);font-weight:500}
+.pulse-score-wrap{display:flex;align-items:center;gap:6px}
+.pulse-score-wrap label{font-size:10px;color:var(--greige-d)}
+.pulse-input{
+  width:44px;border:1.5px solid var(--greige-l);border-radius:6px;
+  padding:4px 6px;font-family:'DM Mono',monospace;font-size:13px;font-weight:600;
+  color:var(--teal-dark);text-align:center;background:var(--white);outline:none;
+}
+.pulse-input:focus{border-color:var(--gold)}
+
+/* ── IDENTITY LIST ── */
+.identity-item{
+  padding:14px 0;border-bottom:1px solid var(--greige-l);
+}
+.identity-item:last-child{border-bottom:none}
+.identity-tag{
+  display:inline-block;font-size:9px;font-weight:700;letter-spacing:.07em;
+  text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-bottom:6px;
+}
+.tag-v2{background:var(--teal-light);color:var(--teal-dark)}
+.tag-v3{background:var(--gold-light);color:var(--gold)}
+.identity-text{font-size:14px;line-height:1.7;color:var(--text)}
+.identity-konkret{font-size:12px;color:var(--greige-d);margin-top:4px;font-style:italic}
+
+/* ── Q1 SECTION ── */
+.q1-section{margin-bottom:20px}
+.q1-section-title{
+  font-size:12px;font-weight:700;color:var(--teal-dark);
+  text-transform:uppercase;letter-spacing:.07em;
+  padding:10px 0 8px;display:flex;align-items:center;gap:8px;
+}
+.q1-section-title::after{content:'';flex:1;height:1px;background:var(--greige-l)}
+.q1-item{display:flex;gap:10px;margin-bottom:10px}
+.q1-num{
+  font-family:'DM Mono',monospace;font-size:12px;font-weight:600;
+  color:var(--greige-d);min-width:22px;padding-top:11px;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--teal-dark);color:var(--white);padding:10px 20px;
+  border-radius:24px;font-size:13px;font-weight:500;
+  opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── START / WELCOME ── */
+.hero-card{
+  background:var(--teal-dark);border-radius:16px;
+  padding:26px 22px 22px;margin-bottom:14px;position:relative;overflow:hidden;
+}
+.hero-card::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:130px;height:130px;background:rgba(93,167,178,.12);border-radius:50%;
+}
+.hero-card::after{
+  content:'';position:absolute;bottom:-20px;left:20px;
+  width:90px;height:90px;background:rgba(201,168,76,.08);border-radius:50%;
+}
+.hero-card h2{
+  font-family:'DM Serif Display',serif;font-size:24px;
+  color:var(--white);line-height:1.25;position:relative;z-index:1;
+}
+.hero-card .tagline{font-size:12px;color:var(--teal-light);margin-top:6px;font-weight:300;position:relative;z-index:1}
+.hero-card .identity-quote{
+  margin-top:16px;padding:12px 14px;background:rgba(255,255,255,.08);
+  border-radius:10px;border-left:3px solid var(--gold);
+  font-size:13px;color:var(--white);line-height:1.6;font-style:italic;position:relative;z-index:1;
+}
+.hero-card .identity-quote.empty{color:rgba(255,255,255,.4);font-style:normal}
+
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-box{
+  background:var(--white);border-radius:12px;padding:14px 12px;text-align:center;
+  box-shadow:0 2px 12px rgba(26,92,92,.06);
+}
+.stat-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:600;color:var(--teal-dark)}
+.stat-label{font-size:10px;color:var(--greige-d);margin-top:2px}
+
+/* ── CONFIG ── */
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── ZIELE ── */
+.ziel-row{padding:12px 0;border-bottom:1px solid var(--greige-l)}
+.ziel-row:last-child{border-bottom:none}
+.ziel-num{font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.07em;margin-bottom:4px}
+.ziel-text{font-size:13px;color:var(--text);line-height:1.6}
+.ziel-mess{font-size:11px;color:var(--greige-d);margin-top:3px;font-style:italic}
+
+/* ── VERLAUF CHART ── */
+.verlauf-bar-wrap{margin-bottom:8px}
+.verlauf-week-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.vlw-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--greige-d);min-width:32px}
+.vlw-bar{flex:1;height:16px;border-radius:4px;background:var(--greige-l);position:relative;overflow:hidden}
+.vlw-fill{height:100%;border-radius:4px;background:var(--teal-mid);transition:width .5s}
+.vlw-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--greige-d);min-width:28px;text-align:right}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--greige-l);border-radius:2px}
+
+/* ── DIVIDER ── */
+.divider{height:4px;background:var(--teal-light);margin:-14px -14px 16px;border-radius:0}
+.divider.gold{background:var(--gold-light)}
+
+/* ── SECTION LABEL ── */
+.section-label{
+  font-size:10px;font-weight:700;color:var(--teal-dark);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--greige-l)}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div class="header-left">
+    <h1>PULSAR Zukunfts-Tracker</h1>
+    <div class="sub">10 Wochen · 70 Tage · K10044</div>
+  </div>
+  <div class="progress-ring" onclick="showTab('tracker')" title="Zum Tracker">
+    <svg width="46" height="46" viewBox="0 0 46 46">
+      <circle class="bg" cx="23" cy="23" r="19" />
+      <circle class="fg" id="progress-circle" cx="23" cy="23" r="19"
+        stroke-dasharray="119.4" stroke-dashoffset="119.4" />
+    </svg>
+    <div class="ring-label" id="ring-label">0<br>Tage</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('start')">🏠 Start</div>
+  <div class="tab" onclick="showTab('heute')">📅 Heute</div>
+  <div class="tab" onclick="showTab('tracker')">📊 Tracker</div>
+  <div class="tab" onclick="showTab('zukunft')">🌟 Zukunft</div>
+  <div class="tab" onclick="showTab('q1')">📘 Q1</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ════════════════════════════════════════════
+       START
+  ════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-start">
+    <div class="hero-card">
+      <h2>Dein Kompass für 10 Wochen.</h2>
+      <div class="tagline">Täglich 2 Minuten · Muster erkennen · Identität stärken</div>
+      <div class="identity-quote" id="hero-identity"
+           onclick="showTab('zukunft')">
+        Tippe hier, um dein Identitäts-Statement einzutragen →
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="stat-val" id="stat-days">0</div>
+        <div class="stat-label">Tage erfasst</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-acts">0%</div>
+        <div class="stat-label">Aktivitäts-Rate</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="stat-feel">—</div>
+        <div class="stat-label">Ø Gefühl</div>
+      </div>
+    </div>
+
+    <!-- Ziele -->
+    <div class="card">
+      <div class="card-header teal">
+        <span class="icon">📍</span>
+        <div><div class="title">Q2 Ziele</div><div class="hint">Strategische Schwerpunkte</div></div>
+      </div>
+      <div class="hint-row">Wird nach der Anamnese-Session eingetragen</div>
+      <div class="card-body" id="ziele-display">
+        <div class="ziel-row">
+          <div class="ziel-num">ZIEL 1</div>
+          <div class="ziel-text" id="z1-text">[Platzhalter]</div>
+          <div class="ziel-mess" id="z1-mess"></div>
+        </div>
+        <div class="ziel-row">
+          <div class="ziel-num">ZIEL 2</div>
+          <div class="ziel-text" id="z2-text">[Platzhalter]</div>
+          <div class="ziel-mess" id="z2-mess"></div>
+        </div>
+        <div class="ziel-row">
+          <div class="ziel-num">ZIEL 3</div>
+          <div class="ziel-text" id="z3-text">[Platzhalter]</div>
+          <div class="ziel-mess" id="z3-mess"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Konfiguration -->
+    <div class="card">
+      <div class="card-header gold">
+        <span class="icon">⚙️</span>
+        <div><div class="title">Konfiguration</div><div class="hint">Aktivitäten & Gefühle benennen · einmalig einrichten</div></div>
+      </div>
+      <div class="hint-row">Namen werden in Tracker & Heute angezeigt</div>
+      <div class="card-body">
+        <div class="section-label">Aktivitäten (A1–A3)</div>
+        <div class="config-grid">
+          <div class="field-group">
+            <div class="field-label">A1 Name</div>
+            <input class="field-input" id="cfg-a1" placeholder="z.B. Sport / Meditation" oninput="saveConfig()">
+          </div>
+          <div class="field-group">
+            <div class="field-label">A2 Name</div>
+            <input class="field-input" id="cfg-a2" placeholder="z.B. Nein-Sagen" oninput="saveConfig()">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">A3 Name</div>
+          <input class="field-input" id="cfg-a3" placeholder="z.B. Bewusst helfen" oninput="saveConfig()">
+        </div>
+        <div class="section-label">Gefühle / Energie-Dimensionen</div>
+        <div class="config-grid">
+          <div class="field-group">
+            <div class="field-label">G1 Name</div>
+            <input class="field-input" id="cfg-g1" placeholder="z.B. Energie" oninput="saveConfig()">
+          </div>
+          <div class="field-group">
+            <div class="field-label">G2 Name</div>
+            <input class="field-input" id="cfg-g2" placeholder="z.B. Klarheit" oninput="saveConfig()">
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">G3 Name</div>
+          <input class="field-input" id="cfg-g3" placeholder="z.B. Identitäts-Kongruenz" oninput="saveConfig()">
+        </div>
+        <div class="section-label" style="margin-top:4px">Q2 Ziele</div>
+        <div class="field-group">
+          <div class="field-label">Ziel 1</div>
+          <input class="field-input" id="cfg-z1" placeholder="Beschreibung" oninput="saveConfig()">
+          <input class="field-input" id="cfg-z1m" placeholder="Messkriterium" style="margin-top:6px" oninput="saveConfig()">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Ziel 2</div>
+          <input class="field-input" id="cfg-z2" placeholder="Beschreibung" oninput="saveConfig()">
+          <input class="field-input" id="cfg-z2m" placeholder="Messkriterium" style="margin-top:6px" oninput="saveConfig()">
+        </div>
+        <div class="field-group">
+          <div class="field-label">Ziel 3</div>
+          <input class="field-input" id="cfg-z3" placeholder="Beschreibung" oninput="saveConfig()">
+          <input class="field-input" id="cfg-z3m" placeholder="Messkriterium" style="margin-top:6px" oninput="saveConfig()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Verlauf Chart -->
+    <div class="card">
+      <div class="card-header mid">
+        <span class="icon">📈</span>
+        <div><div class="title">Wochen-Verlauf</div><div class="hint">Aktivitäts-Rate je Woche</div></div>
+      </div>
+      <div class="card-body" id="verlauf-wrap">
+        <div style="text-align:center;padding:20px;color:var(--greige-d);font-size:13px">
+          Noch keine Einträge — starte heute!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       HEUTE
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-heute">
+    <div class="date-bar">
+      <div class="date-text" id="heute-date">—</div>
+      <div class="week-badge" id="heute-week">W —</div>
+    </div>
+
+    <!-- Aktivitäten -->
+    <div class="card">
+      <div class="card-header teal">
+        <span class="icon">✅</span>
+        <div><div class="title">Aktivitäten</div><div class="hint">Abhaken → Feld wird grün</div></div>
+      </div>
+      <div class="card-body" id="act-list">
+        <!-- JS rendered -->
+      </div>
+    </div>
+
+    <!-- Gefühle -->
+    <div class="card">
+      <div class="card-header mid">
+        <span class="icon">🌡</span>
+        <div><div class="title">Gefühle & Energie</div><div class="hint">Skala 1 (niedrig) – 10 (hoch)</div></div>
+      </div>
+      <div class="card-body" id="feel-list">
+        <!-- JS rendered -->
+      </div>
+    </div>
+
+    <!-- Notiz -->
+    <div class="card">
+      <div class="card-header" style="background:var(--flora);border-bottom:1px solid var(--greige-l)">
+        <span class="icon" style="font-size:15px">💡</span>
+        <div><div class="title" style="color:var(--teal-dark)">Notiz (optional)</div></div>
+      </div>
+      <div class="card-body">
+        <textarea class="field-input" id="heute-note" placeholder="Was ist heute besonders aufgefallen? Welches Muster war sichtbar?" rows="3"></textarea>
+      </div>
+    </div>
+
+    <button class="btn-save" id="save-btn" onclick="saveToday()">Heute speichern</button>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       TRACKER
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-tracker">
+    <div id="tracker-grid"><!-- JS rendered --></div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       ZUKUNFTSLISTE
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-zukunft">
+    <!-- Identity -->
+    <div class="card">
+      <div class="card-header teal">
+        <span class="icon">🎯</span>
+        <div><div class="title">Mein Identitäts-Statement</div><div class="hint">Nordstern für 10 Wochen</div></div>
+      </div>
+      <div class="card-body">
+        <div class="field-group">
+          <div class="field-label">Identitäts-Statement</div>
+          <textarea class="field-input" id="z-identity" placeholder='z.B. "Ich bin ein klar präsenter Gestalter, der aus innerer Ruhe heraus strategisch führt."' rows="3" oninput="saveZukunft()"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label">Leitsatz (kurz)</div>
+          <input class="field-input" id="z-leitsatz" placeholder='z.B. "Führen aus innerer Ruhe."' oninput="saveZukunft()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Version 2.0 -->
+    <div class="card">
+      <div class="card-header teal">
+        <span class="icon">📘</span>
+        <div><div class="title">Version 2.0 — Aus Q1 festigen</div><div class="hint">Wird in Q2 stabilisiert · nicht neu, sondern konsequent</div></div>
+      </div>
+      <div class="hint-row">Diese Statements bleiben aktiv · Fokus auf Konsistenz</div>
+      <div class="card-body" id="v2-list"><!-- JS rendered --></div>
+    </div>
+
+    <!-- Version 3.0 -->
+    <div class="card">
+      <div class="card-header gold">
+        <span class="icon">📙</span>
+        <div><div class="title">Version 3.0 — Q2 Neu</div><div class="hint">Nach Anamnese-Session definiert</div></div>
+      </div>
+      <div class="hint-row">Neue Identitätsverhaltensweisen · Platzhalter bis zur Session</div>
+      <div class="card-body" id="v3-list"><!-- JS rendered --></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════
+       Q1 VERDICHTUNG
+  ════════════════════════════════════════════ -->
+  <div class="screen" id="screen-q1">
+    <div class="card">
+      <div class="card-header teal">
+        <span class="icon">📘</span>
+        <div><div class="title">Q1 Verdichtung — Was nimmst du mit?</div><div class="hint">Brücke von Q1 nach Q2 · einmalig im Sparring</div></div>
+      </div>
+      <div class="card-body">
+
+        <div class="q1-section">
+          <div class="q1-section-title">✅ Was hat funktioniert?</div>
+          <div class="hint-row" style="border-radius:8px;margin-bottom:10px">Verhaltensweisen, Routinen, Entscheidungen die gewirkt haben</div>
+          <div class="q1-item"><div class="q1-num">1.</div><textarea class="field-input" id="q1-f1" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">2.</div><textarea class="field-input" id="q1-f2" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">3.</div><textarea class="field-input" id="q1-f3" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="q1-section">
+          <div class="q1-section-title">🔄 Was wird mitgenommen?</div>
+          <div class="hint-row" style="border-radius:8px;margin-bottom:10px">Erkenntnisse, Haltungen, Muster-Bewusstsein das bleibt</div>
+          <div class="q1-item"><div class="q1-num">1.</div><textarea class="field-input" id="q1-m1" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">2.</div><textarea class="field-input" id="q1-m2" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">3.</div><textarea class="field-input" id="q1-m3" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="q1-section">
+          <div class="q1-section-title">🚫 Was wird losgelassen?</div>
+          <div class="hint-row" style="border-radius:8px;margin-bottom:10px">Muster, Gewohnheiten, Erwartungen die nicht mehr dienen</div>
+          <div class="q1-item"><div class="q1-num">1.</div><textarea class="field-input" id="q1-l1" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">2.</div><textarea class="field-input" id="q1-l2" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+          <div class="q1-item"><div class="q1-num">3.</div><textarea class="field-input" id="q1-l3" rows="2" placeholder="..." oninput="saveQ1()"></textarea></div>
+        </div>
+
+        <div class="divider gold"></div>
+
+        <div class="q1-section">
+          <div class="q1-section-title">🎯 Die eine Sache</div>
+          <div class="hint-row" style="border-radius:8px;margin-bottom:10px">Wenn du nur eine Sache aus Q1 in Q2 mitnehmen könntest — welche?</div>
+          <textarea class="field-input" id="q1-one" rows="3" placeholder="..." oninput="saveQ1()"></textarea>
+        </div>
+
+        <button class="btn-save" onclick="saveQ1();showToast('Q1 Verdichtung gespeichert ✓')">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA MODEL
+// ═══════════════════════════════════════════════
+const STORAGE_KEY = 'pulsar_tracker_v2';
+const WEEKS = 10;
+const DAY_NAMES = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+const START_DATE = new Date('2026-04-14'); // W1 Montag
+
+let data = {
+  config: {
+    a: ['','',''],
+    g: ['','',''],
+    z: [{t:'',m:''},{t:'',m:''},{t:'',m:''}]
+  },
+  entries: {},   // { "2026-04-15": { a:[0,1,1], f:[7,5,8], note:'' } }
+  pulse: {},     // { "1": { score:8, note:'' } }
+  zukunft: {
+    identity: '',
+    leitsatz: '',
+    v2: ['','','',''],
+    v2k: ['','','',''],  // konkret
+    v3: ['','','',''],
+    v3k: ['','','',''],
+  },
+  q1: { f:['','',''], m:['','',''], l:['','',''], one:'' }
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+function todayStr() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function dayIndexFromDate(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const diff = Math.round((d - START_DATE) / 86400000);
+  return diff; // 0 = first day
+}
+
+function dateFromIndex(idx) {
+  const d = new Date(START_DATE);
+  d.setDate(d.getDate() + idx);
+  return d.toISOString().slice(0,10);
+}
+
+function weekFromIdx(idx) { return Math.floor(idx / 7) + 1; }
+
+function formatDateDE(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('de-DE', { weekday:'long', day:'numeric', month:'long' });
+}
+
+function formatDateShort(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.getDate() + '.' + (d.getMonth()+1) + '.';
+}
+
+function getTodayWeek() {
+  const idx = dayIndexFromDate(todayStr());
+  return Math.floor(idx / 7) + 1;
+}
+
+function getCompletedDays() {
+  return Object.keys(data.entries).filter(k => {
+    const e = data.entries[k];
+    return e && (e.a && e.a.some(v=>v)) || (e.f && e.f.some(v=>v>0));
+  }).length;
+}
+
+function getActRate() {
+  const keys = Object.keys(data.entries);
+  if (!keys.length) return 0;
+  let total = 0, done = 0;
+  keys.forEach(k => {
+    const e = data.entries[k];
+    if (!e || !e.a) return;
+    e.a.forEach(v => { total++; if(v) done++; });
+  });
+  return total ? Math.round(done/total*100) : 0;
+}
+
+function getAvgFeel() {
+  const keys = Object.keys(data.entries);
+  let vals = [];
+  keys.forEach(k => {
+    const e = data.entries[k];
+    if (e && e.f) e.f.forEach(v => { if(v>0) vals.push(v); });
+  });
+  if (!vals.length) return null;
+  return (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
+}
+
+// ═══════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════
+function saveConfig() {
+  data.config.a = [
+    document.getElementById('cfg-a1').value,
+    document.getElementById('cfg-a2').value,
+    document.getElementById('cfg-a3').value,
+  ];
+  data.config.g = [
+    document.getElementById('cfg-g1').value,
+    document.getElementById('cfg-g2').value,
+    document.getElementById('cfg-g3').value,
+  ];
+  data.config.z = [
+    {t: document.getElementById('cfg-z1').value, m: document.getElementById('cfg-z1m').value},
+    {t: document.getElementById('cfg-z2').value, m: document.getElementById('cfg-z2m').value},
+    {t: document.getElementById('cfg-z3').value, m: document.getElementById('cfg-z3m').value},
+  ];
+  saveData();
+  renderStart();
+  renderHeute();
+}
+
+function loadConfigUI() {
+  document.getElementById('cfg-a1').value = data.config.a[0]||'';
+  document.getElementById('cfg-a2').value = data.config.a[1]||'';
+  document.getElementById('cfg-a3').value = data.config.a[2]||'';
+  document.getElementById('cfg-g1').value = data.config.g[0]||'';
+  document.getElementById('cfg-g2').value = data.config.g[1]||'';
+  document.getElementById('cfg-g3').value = data.config.g[2]||'';
+  if (data.config.z) {
+    data.config.z.forEach((z,i) => {
+      const t = document.getElementById('cfg-z'+(i+1));
+      const m = document.getElementById('cfg-z'+(i+1)+'m');
+      if(t) t.value = z.t||'';
+      if(m) m.value = z.m||'';
+    });
+  }
+}
+
+function aName(i) { return data.config.a[i] || `Aktivität ${i+1}`; }
+function gName(i) { return data.config.g[i] || `Gefühl ${i+1}`; }
+
+// ═══════════════════════════════════════════════
+//  START TAB
+// ═══════════════════════════════════════════════
+function renderStart() {
+  // Hero identity
+  const hId = document.getElementById('hero-identity');
+  const id = data.zukunft.identity;
+  hId.textContent = id ? `"${id}"` : 'Tippe hier, um dein Identitäts-Statement einzutragen →';
+  hId.className = 'identity-quote' + (id ? '' : ' empty');
+
+  // Stats
+  const comp = getCompletedDays();
+  document.getElementById('stat-days').textContent = comp;
+  document.getElementById('stat-acts').textContent = getActRate() + '%';
+  const af = getAvgFeel();
+  document.getElementById('stat-feel').textContent = af || '—';
+
+  // Progress ring
+  const total = WEEKS * 7;
+  const pct = comp / total;
+  const circ = 2 * Math.PI * 19;
+  document.getElementById('progress-circle').style.strokeDashoffset = circ * (1-pct);
+  document.getElementById('ring-label').innerHTML = comp + '<br>Tage';
+
+  // Ziele
+  if (data.config.z) {
+    data.config.z.forEach((z,i) => {
+      const el = document.getElementById('z'+(i+1)+'-text');
+      const mel = document.getElementById('z'+(i+1)+'-mess');
+      if (el) el.textContent = z.t || '[Platzhalter]';
+      if (mel) mel.textContent = z.m || '';
+    });
+  }
+
+  // Verlauf bars
+  renderVerlauf();
+}
+
+function renderVerlauf() {
+  const wrap = document.getElementById('verlauf-wrap');
+  let html = '';
+  let hasAny = false;
+  for (let w = 1; w <= WEEKS; w++) {
+    let total=0, done=0;
+    for (let d=0;d<7;d++) {
+      const idx = (w-1)*7+d;
+      const ds = dateFromIndex(idx);
+      const e = data.entries[ds];
+      if (e && e.a) { e.a.forEach(v => { total++; if(v) done++; }); }
+    }
+    if (total > 0) hasAny = true;
+    const pct = total ? Math.round(done/total*100) : 0;
+    html += `<div class="verlauf-week-row">
+      <div class="vlw-label">W${w}</div>
+      <div class="vlw-bar"><div class="vlw-fill" style="width:${pct}%"></div></div>
+      <div class="vlw-val">${total?pct+'%':'—'}</div>
+    </div>`;
+  }
+  if (!hasAny) {
+    wrap.innerHTML = '<div style="text-align:center;padding:20px;color:var(--greige-d);font-size:13px">Noch keine Einträge — starte heute!</div>';
+  } else {
+    wrap.innerHTML = html;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  HEUTE TAB
+// ═══════════════════════════════════════════════
+function renderHeute() {
+  const today = todayStr();
+  const idx = dayIndexFromDate(today);
+  const week = weekFromIdx(idx);
+
+  document.getElementById('heute-date').textContent = formatDateDE(today);
+  document.getElementById('heute-week').textContent = `Woche ${week}`;
+
+  const entry = data.entries[today] || { a:[0,0,0], f:[5,5,5], note:'' };
+
+  // Activities
+  const actList = document.getElementById('act-list');
+  actList.innerHTML = '';
+  [0,1,2].forEach(i => {
+    const done = entry.a && entry.a[i];
+    const div = document.createElement('div');
+    div.className = 'activity-item';
+    div.innerHTML = `
+      <div class="act-check ${done?'done':''}" id="act-check-${i}" onclick="toggleAct(${i})">
+        ${done ? '✓' : ''}
+      </div>
+      <div class="act-name">
+        <div class="name">${aName(i)}</div>
+        <div class="sub">0 oder 1 — täglich</div>
+      </div>
+      <div class="act-badge">${done?'1':'0'}</div>
+    `;
+    actList.appendChild(div);
+  });
+
+  // Feelings
+  const feelList = document.getElementById('feel-list');
+  feelList.innerHTML = '';
+  [0,1,2].forEach(i => {
+    const val = (entry.f && entry.f[i]) || 5;
+    const div = document.createElement('div');
+    div.className = 'feeling-row';
+    div.innerHTML = `
+      <div class="feeling-head">
+        <div class="feeling-name">${gName(i)}</div>
+        <div class="feeling-val" id="feel-val-${i}">${val}</div>
+      </div>
+      <input type="range" min="1" max="10" value="${val}" id="feel-range-${i}"
+        oninput="updateFeelVal(${i},this.value)" style="background:${sliderGradient(val)}">
+    `;
+    feelList.appendChild(div);
+  });
+
+  // Note
+  document.getElementById('heute-note').value = entry.note || '';
+
+  // Save btn
+  const btn = document.getElementById('save-btn');
+  btn.textContent = data.entries[today] ? 'Heute überschreiben' : 'Heute speichern';
+}
+
+function sliderGradient(val) {
+  const pct = ((val-1)/9)*100;
+  return `linear-gradient(to right,var(--teal-mid) 0%,var(--teal-mid) ${pct}%,var(--greige-l) ${pct}%,var(--greige-l) 100%)`;
+}
+
+function updateFeelVal(i, v) {
+  document.getElementById('feel-val-'+i).textContent = v;
+  document.getElementById('feel-range-'+i).style.background = sliderGradient(v);
+}
+
+function toggleAct(i) {
+  const today = todayStr();
+  if (!data.entries[today]) data.entries[today] = {a:[0,0,0],f:[5,5,5],note:''};
+  const e = data.entries[today];
+  if (!e.a) e.a = [0,0,0];
+  e.a[i] = e.a[i] ? 0 : 1;
+  saveData();
+  renderHeute();
+  renderStart();
+}
+
+function saveToday() {
+  const today = todayStr();
+  const a = [0,1,2].map(i => {
+    const el = document.getElementById('act-check-'+i);
+    return el && el.classList.contains('done') ? 1 : 0;
+  });
+  const f = [0,1,2].map(i => {
+    const el = document.getElementById('feel-range-'+i);
+    return el ? parseInt(el.value) : 5;
+  });
+  const note = document.getElementById('heute-note').value;
+  data.entries[today] = { a, f, note };
+  saveData();
+  renderStart();
+  renderHeute();
+  buildTracker();
+  const btn = document.getElementById('save-btn');
+  btn.textContent = '✓ Gespeichert!';
+  btn.classList.add('saved');
+  setTimeout(() => {
+    btn.textContent = 'Heute überschreiben';
+    btn.classList.remove('saved');
+  }, 2000);
+  showToast('Eintrag gespeichert ✓');
+}
+
+// ═══════════════════════════════════════════════
+//  TRACKER
+// ═══════════════════════════════════════════════
+function buildTracker() {
+  const wrap = document.getElementById('tracker-grid');
+  const today = todayStr();
+  let html = '';
+
+  for (let w=1; w<=WEEKS; w++) {
+    // Dates for this week
+    const weekDates = Array.from({length:7}, (_,d) => dateFromIndex((w-1)*7+d));
+
+    // Week acts count
+    let wTotal=0, wDone=0, wFeels=[];
+    weekDates.forEach(ds => {
+      const e = data.entries[ds];
+      if (e && e.a) { e.a.forEach(v=>{wTotal++;if(v)wDone++;}); }
+      if (e && e.f) { e.f.forEach(v=>{if(v>0)wFeels.push(v);}); }
+    });
+    const wActPct = wTotal ? Math.round(wDone/wTotal*100) : 0;
+    const wAvgFeel = wFeels.length ? (wFeels.reduce((a,b)=>a+b,0)/wFeels.length).toFixed(1) : '—';
+
+    html += `<div class="week-block">
+      <div class="week-title">Woche ${w} <span style="font-family:'DM Mono',monospace;font-weight:400;color:var(--greige-d);font-size:9px">${weekDates[0].slice(5).replace('-','.')} – ${weekDates[6].slice(5).replace('-','.')}</span></div>
+      <div class="week-grid">`;
+
+    weekDates.forEach((ds, di) => {
+      const e = data.entries[ds];
+      const isToday = ds === today;
+      const dayNum = new Date(ds+'T00:00:00').getDate();
+      let entryClass = '';
+      let dots = '', feelTxt = '';
+      if (e) {
+        const actDone = e.a ? e.a.filter(Boolean).length : 0;
+        const actTotal = 3;
+        entryClass = actDone === actTotal ? 'has-entry full' : actDone > 0 ? 'has-entry partial' : '';
+        dots = (e.a||[0,0,0]).map(v=>`<div class="d-dot ${v?'on':''}"></div>`).join('');
+        if (e.f) {
+          const fv = e.f.filter(v=>v>0);
+          if (fv.length) feelTxt = (fv.reduce((a,b)=>a+b,0)/fv.length).toFixed(0);
+        }
+      } else {
+        dots = '<div class="d-dot"></div><div class="d-dot"></div><div class="d-dot"></div>';
+      }
+      html += `<div class="day-cell ${entryClass} ${isToday?'today':''}"
+          onclick="clickDay('${ds}')" title="${ds}">
+        <div class="d-name">${DAY_NAMES[di]}</div>
+        <div class="d-num">${dayNum}</div>
+        <div class="d-acts">${dots}</div>
+        ${feelTxt ? `<div class="d-feel">${feelTxt}</div>` : ''}
+      </div>`;
+    });
+
+    html += `</div>`;
+
+    // Pulse row
+    const pulse = data.pulse[w] || { score:'', note:'' };
+    html += `<div class="pulse-row">
+      <div>
+        <div class="pulse-label">⚡ Wochen-Puls</div>
+        <div class="pulse-acts" style="font-size:10px;margin-top:2px">${wTotal?wDone+'/'+wTotal+' Akt. · Ø '+wAvgFeel:'Noch keine Einträge'}</div>
+      </div>
+      <div class="pulse-score-wrap">
+        <label>Identitäts-Score</label>
+        <input type="number" class="pulse-input" min="1" max="10" placeholder="—"
+          value="${pulse.score||''}" id="pulse-${w}"
+          onchange="savePulse(${w},this.value)" title="Identitäts-Score W${w}">
+        <span style="font-size:10px;color:var(--greige-d)">/10</span>
+      </div>
+    </div>`;
+
+    html += `</div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function clickDay(ds) {
+  // Navigate to heute if it's today, otherwise show info
+  if (ds === todayStr()) {
+    showTab('heute');
+  } else {
+    showToast(formatDateShort(ds) + ' — ' + (data.entries[ds] ? 'Eintrag vorhanden' : 'Kein Eintrag'));
+  }
+}
+
+function savePulse(week, val) {
+  if (!data.pulse[week]) data.pulse[week] = { score:'', note:'' };
+  data.pulse[week].score = val;
+  saveData();
+  showToast('Wochen-Puls W' + week + ' gespeichert ✓');
+}
+
+// ═══════════════════════════════════════════════
+//  ZUKUNFTSLISTE
+// ═══════════════════════════════════════════════
+const V2_DEFAULTS = [
+  'Ich prüfe vor Zusagen bewusst meine Energie und sage Nein, wenn es nicht zu meinen Zielen passt.',
+  'Ich frage mich vor dem Helfen: Will ich das wirklich — oder erwarte ich Anerkennung?',
+  'Ich spreche Bedürfnisse und Grenzen frühzeitig aus — ohne Rechtfertigung.',
+  'Ich plane Erholungszeiten bewusst ein und halte sie verbindlich ein.',
+];
+
+function renderZukunft() {
+  document.getElementById('z-identity').value = data.zukunft.identity||'';
+  document.getElementById('z-leitsatz').value = data.zukunft.leitsatz||'';
+
+  // V2 list
+  const v2 = document.getElementById('v2-list');
+  v2.innerHTML = '';
+  for (let i=0;i<4;i++) {
+    const text = data.zukunft.v2[i] || V2_DEFAULTS[i];
+    const konkret = data.zukunft.v2k[i] || '';
+    const div = document.createElement('div');
+    div.className = 'identity-item';
+    div.innerHTML = `
+      <div class="identity-tag tag-v2">V 2.0 · ${i+1}</div>
+      <div class="identity-text">${text}</div>
+      <textarea class="field-input" style="margin-top:8px;font-size:12px" rows="2"
+        placeholder="Konkret im Alltag: Wie zeigt sich das?"
+        onchange="saveZukunftItem('v2k',${i},this.value)">${konkret}</textarea>
+    `;
+    v2.appendChild(div);
+  }
+
+  // V3 list
+  const v3 = document.getElementById('v3-list');
+  v3.innerHTML = '';
+  for (let i=0;i<4;i++) {
+    const text = data.zukunft.v3[i] || '';
+    const konkret = data.zukunft.v3k[i] || '';
+    const div = document.createElement('div');
+    div.className = 'identity-item';
+    div.innerHTML = `
+      <div class="identity-tag tag-v3">V 3.0 · ${i+1}</div>
+      <textarea class="field-input" rows="2"
+        placeholder="[Statement ${i+1} — nach Anamnese-Session eintragen]"
+        onchange="saveZukunftItem('v3',${i},this.value)">${text}</textarea>
+      <textarea class="field-input" style="margin-top:6px;font-size:12px" rows="2"
+        placeholder="Konkret im Alltag..."
+        onchange="saveZukunftItem('v3k',${i},this.value)">${konkret}</textarea>
+    `;
+    v3.appendChild(div);
+  }
+}
+
+function saveZukunft() {
+  data.zukunft.identity = document.getElementById('z-identity').value;
+  data.zukunft.leitsatz = document.getElementById('z-leitsatz').value;
+  saveData();
+  renderStart();
+}
+
+function saveZukunftItem(list, idx, val) {
+  data.zukunft[list][idx] = val;
+  saveData();
+  showToast('Statement gespeichert ✓');
+}
+
+// ═══════════════════════════════════════════════
+//  Q1 VERDICHTUNG
+// ═══════════════════════════════════════════════
+function loadQ1() {
+  const q = data.q1;
+  [1,2,3].forEach(i => {
+    document.getElementById('q1-f'+i).value = q.f[i-1]||'';
+    document.getElementById('q1-m'+i).value = q.m[i-1]||'';
+    document.getElementById('q1-l'+i).value = q.l[i-1]||'';
+  });
+  document.getElementById('q1-one').value = q.one||'';
+}
+
+function saveQ1() {
+  data.q1.f = [1,2,3].map(i=>document.getElementById('q1-f'+i).value);
+  data.q1.m = [1,2,3].map(i=>document.getElementById('q1-m'+i).value);
+  data.q1.l = [1,2,3].map(i=>document.getElementById('q1-l'+i).value);
+  data.q1.one = document.getElementById('q1-one').value;
+  saveData();
+}
+
+// ═══════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════
+const TABS = ['start','heute','tracker','zukunft','q1'];
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',TABS[i]===name));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if (name==='heute') renderHeute();
+  if (name==='tracker') buildTracker();
+  if (name==='zukunft') renderZukunft();
+  if (name==='q1') loadQ1();
+  if (name==='start') renderStart();
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+loadData();
+loadConfigUI();
+renderStart();
+renderHeute();
+</script>
+</body>
+</html>
